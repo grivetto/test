@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { 
-  Stethoscope, 
-  Syringe, 
-  Scissors, 
-  Heart, 
-  Phone, 
-  MapPin, 
-  Clock, 
-  Menu, 
+import {
+  Stethoscope,
+  Syringe,
+  Scissors,
+  Heart,
+  Phone,
+  MapPin,
+  Clock,
+  Menu,
   X,
   ChevronRight,
   Star
@@ -17,6 +17,56 @@ import {
 export default function App() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Form State
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    petName: '',
+    reason: 'Visita di Controllo'
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleFormSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+
+    try {
+      const response = await fetch('/api/appointments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        setSubmitStatus('success');
+        setFormData({
+          firstName: '',
+          lastName: '',
+          email: '',
+          petName: '',
+          reason: 'Visita di Controllo'
+        });
+      } else {
+        setSubmitStatus('error');
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      setSubmitStatus('error');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -44,10 +94,9 @@ export default function App() {
   return (
     <div className="min-h-screen bg-cream text-charcoal font-sans selection:bg-sage-200 selection:text-sage-900">
       {/* Navigation */}
-      <header 
-        className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-          isScrolled ? 'bg-white/90 backdrop-blur-md shadow-sm py-3' : 'bg-transparent py-5'
-        }`}
+      <header
+        className={`fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-white/90 backdrop-blur-md shadow-sm py-3' : 'bg-transparent py-5'
+          }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
           <div className="flex items-center gap-2">
@@ -56,15 +105,15 @@ export default function App() {
               Dr. Clara Paws
             </span>
           </div>
-          
+
           {/* Desktop Nav */}
           <nav className="hidden md:flex items-center gap-8">
             <a href="#about" className="text-sm font-medium hover:text-sage-600 transition-colors">Chi Siamo</a>
             <a href="#services" className="text-sm font-medium hover:text-sage-600 transition-colors">Servizi</a>
             <a href="#testimonials" className="text-sm font-medium hover:text-sage-600 transition-colors">Dicono di Noi</a>
             <a href="#contact" className="text-sm font-medium hover:text-sage-600 transition-colors">Contatti</a>
-            <a 
-              href="#book" 
+            <a
+              href="#book"
               className="bg-sage-600 text-white px-5 py-2.5 rounded-full text-sm font-medium hover:bg-sage-700 transition-colors shadow-sm"
             >
               Prenota Appuntamento
@@ -72,7 +121,7 @@ export default function App() {
           </nav>
 
           {/* Mobile Menu Toggle */}
-          <button 
+          <button
             className="md:hidden p-2 text-charcoal"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
@@ -84,7 +133,7 @@ export default function App() {
       {/* Mobile Nav */}
       <AnimatePresence>
         {mobileMenuOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
@@ -95,8 +144,8 @@ export default function App() {
               <a href="#services" onClick={() => setMobileMenuOpen(false)} className="text-lg font-medium py-2 border-b border-sage-100">Servizi</a>
               <a href="#testimonials" onClick={() => setMobileMenuOpen(false)} className="text-lg font-medium py-2 border-b border-sage-100">Dicono di Noi</a>
               <a href="#contact" onClick={() => setMobileMenuOpen(false)} className="text-lg font-medium py-2 border-b border-sage-100">Contatti</a>
-              <a 
-                href="#book" 
+              <a
+                href="#book"
                 onClick={() => setMobileMenuOpen(false)}
                 className="bg-sage-600 text-white px-5 py-3 rounded-full text-center font-medium mt-4"
               >
@@ -112,16 +161,16 @@ export default function App() {
         <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
           <div className="absolute inset-0 z-0">
             <div className="absolute inset-0 bg-gradient-to-r from-cream via-cream/90 to-transparent z-10" />
-            <img 
-              src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&q=80&w=2000" 
-              alt="Veterinarian with a dog" 
+            <img
+              src="https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&q=80&w=2000"
+              alt="Veterinarian with a dog"
               className="w-full h-full object-cover object-right-top"
               referrerPolicy="no-referrer"
             />
           </div>
-          
+
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <motion.div 
+            <motion.div
               initial="hidden"
               animate="visible"
               variants={staggerContainer}
@@ -138,14 +187,14 @@ export default function App() {
                 Benvenuti nella clinica della Dott.ssa Clara, dove trattiamo ogni animale come uno di famiglia. Cure mediche, chirurgiche e dentali complete in un ambiente senza stress.
               </motion.p>
               <motion.div variants={fadeIn} className="flex flex-wrap gap-4">
-                <a 
-                  href="#book" 
+                <a
+                  href="#book"
                   className="bg-sage-600 text-white px-8 py-4 rounded-full font-medium hover:bg-sage-700 transition-colors shadow-lg shadow-sage-600/20 flex items-center gap-2"
                 >
                   Prenota una Visita <ChevronRight className="w-4 h-4" />
                 </a>
-                <a 
-                  href="#services" 
+                <a
+                  href="#services"
                   className="bg-white text-sage-900 px-8 py-4 rounded-full font-medium hover:bg-sage-50 transition-colors border border-sage-200"
                 >
                   I Nostri Servizi
@@ -159,7 +208,7 @@ export default function App() {
         <section id="about" className="py-24 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
-              <motion.div 
+              <motion.div
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true, margin: "-100px" }}
@@ -167,16 +216,16 @@ export default function App() {
                 className="relative"
               >
                 <div className="aspect-[4/5] rounded-[2rem] overflow-hidden relative z-10">
-                  <img 
-                    src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&q=80&w=1000" 
-                    alt="Dr. Clara examining a cat" 
+                  <img
+                    src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&q=80&w=1000"
+                    alt="Dr. Clara examining a cat"
                     className="w-full h-full object-cover"
                     referrerPolicy="no-referrer"
                   />
                 </div>
                 <div className="absolute -bottom-8 -right-8 w-64 h-64 bg-sage-100 rounded-full z-0 blur-3xl opacity-60" />
                 <div className="absolute -top-8 -left-8 w-48 h-48 bg-sage-200 rounded-full z-0 blur-3xl opacity-40" />
-                
+
                 <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-2xl shadow-xl z-20 max-w-xs border border-sage-50">
                   <div className="flex items-center gap-4 mb-2">
                     <div className="w-12 h-12 bg-sage-100 rounded-full flex items-center justify-center text-sage-600">
@@ -189,7 +238,7 @@ export default function App() {
                   </div>
                 </div>
               </motion.div>
-              
+
               <motion.div
                 initial="hidden"
                 whileInView="visible"
@@ -214,9 +263,9 @@ export default function App() {
                   </p>
                 </motion.div>
                 <motion.div variants={fadeIn}>
-                  <img 
-                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Signature_of_John_Hancock.svg/1200px-Signature_of_John_Hancock.svg.png" 
-                    alt="Signature" 
+                  <img
+                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Signature_of_John_Hancock.svg/1200px-Signature_of_John_Hancock.svg.png"
+                    alt="Signature"
                     className="h-12 opacity-40 grayscale"
                     referrerPolicy="no-referrer"
                   />
@@ -259,7 +308,7 @@ export default function App() {
                   desc: "Pulizie professionali, radiografie dentali digitali e chirurgia orale per prevenire le malattie."
                 }
               ].map((service, idx) => (
-                <motion.div 
+                <motion.div
                   key={idx}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -306,7 +355,7 @@ export default function App() {
                   pet: "Proprietaria di Max & Luna"
                 }
               ].map((testimonial, idx) => (
-                <motion.div 
+                <motion.div
                   key={idx}
                   initial={{ opacity: 0, scale: 0.95 }}
                   whileInView={{ opacity: 1, scale: 1 }}
@@ -339,7 +388,7 @@ export default function App() {
                 <p className="text-sage-200 text-lg mb-10 max-w-md">
                   Accettiamo nuovi pazienti! Chiamaci o prenota online per fissare il primo appuntamento del tuo animale.
                 </p>
-                
+
                 <div className="space-y-6">
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 bg-sage-800 rounded-full flex items-center justify-center shrink-0">
@@ -347,70 +396,107 @@ export default function App() {
                     </div>
                     <div>
                       <h4 className="font-bold text-white mb-1">Posizione</h4>
-                      <p className="text-sage-200">123 Wellness Way<br/>Portland, OR 97204</p>
+                      <p className="text-sage-200">123 Wellness Way<br />Portland, OR 97204</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 bg-sage-800 rounded-full flex items-center justify-center shrink-0">
                       <Phone className="w-6 h-6 text-sage-300" />
                     </div>
                     <div>
                       <h4 className="font-bold text-white mb-1">Contatti</h4>
-                      <p className="text-sage-200">(555) 123-4567<br/>hello@drpaws.com</p>
+                      <p className="text-sage-200">(555) 123-4567<br />hello@drpaws.com</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 bg-sage-800 rounded-full flex items-center justify-center shrink-0">
                       <Clock className="w-6 h-6 text-sage-300" />
                     </div>
                     <div>
                       <h4 className="font-bold text-white mb-1">Orari</h4>
-                      <p className="text-sage-200">Lun-Ven: 8:00 - 18:00<br/>Sab: 9:00 - 14:00<br/>Dom: Chiuso</p>
+                      <p className="text-sage-200">Lun-Ven: 8:00 - 18:00<br />Sab: 9:00 - 14:00<br />Dom: Chiuso</p>
                     </div>
                   </div>
                 </div>
               </div>
-              
+
               <div id="book" className="bg-white rounded-[2rem] p-8 lg:p-12 text-charcoal shadow-2xl">
                 <h3 className="text-2xl font-serif font-bold text-sage-900 mb-6">Richiedi un Appuntamento</h3>
-                <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-charcoal/70 mb-1">Nome</label>
-                      <input type="text" className="w-full px-4 py-3 rounded-xl bg-sage-50 border-none focus:ring-2 focus:ring-sage-300 outline-none transition-shadow" placeholder="Mario" />
+
+                {submitStatus === 'success' ? (
+                  <div className="bg-sage-50 rounded-xl p-8 text-center border border-sage-200">
+                    <div className="w-16 h-16 bg-sage-100 text-sage-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Heart className="w-8 h-8" fill="currentColor" />
+                    </div>
+                    <h4 className="text-xl font-bold text-sage-900 mb-2">Richiesta Inviata!</h4>
+                    <p className="text-charcoal/80 mb-6">
+                      Grazie per averci contattato. La tua richiesta per {formData.petName || 'il tuo animale'} è stata ricevuta. Ti chiameremo al più presto per confermare l'orario.
+                    </p>
+                    <button
+                      onClick={() => setSubmitStatus('idle')}
+                      className="text-sage-600 font-medium hover:text-sage-700 underline"
+                    >
+                      Invia un'altra richiesta
+                    </button>
+                  </div>
+                ) : (
+                  <form className="space-y-4" onSubmit={handleFormSubmit}>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-charcoal/70 mb-1">Nome</label>
+                        <input type="text" name="firstName" value={formData.firstName} onChange={handleInputChange} required className="w-full px-4 py-3 rounded-xl bg-sage-50 border-none focus:ring-2 focus:ring-sage-300 outline-none transition-shadow" placeholder="Mario" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-charcoal/70 mb-1">Cognome</label>
+                        <input type="text" name="lastName" value={formData.lastName} onChange={handleInputChange} required className="w-full px-4 py-3 rounded-xl bg-sage-50 border-none focus:ring-2 focus:ring-sage-300 outline-none transition-shadow" placeholder="Rossi" />
+                      </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-charcoal/70 mb-1">Cognome</label>
-                      <input type="text" className="w-full px-4 py-3 rounded-xl bg-sage-50 border-none focus:ring-2 focus:ring-sage-300 outline-none transition-shadow" placeholder="Rossi" />
+                      <label className="block text-sm font-medium text-charcoal/70 mb-1">Email</label>
+                      <input type="email" name="email" value={formData.email} onChange={handleInputChange} required className="w-full px-4 py-3 rounded-xl bg-sage-50 border-none focus:ring-2 focus:ring-sage-300 outline-none transition-shadow" placeholder="mario@example.com" />
                     </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-charcoal/70 mb-1">Email</label>
-                    <input type="email" className="w-full px-4 py-3 rounded-xl bg-sage-50 border-none focus:ring-2 focus:ring-sage-300 outline-none transition-shadow" placeholder="mario@example.com" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-charcoal/70 mb-1">Nome e Razza dell'Animale</label>
-                    <input type="text" className="w-full px-4 py-3 rounded-xl bg-sage-50 border-none focus:ring-2 focus:ring-sage-300 outline-none transition-shadow" placeholder="Bella, Golden Retriever" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-charcoal/70 mb-1">Motivo della Visita</label>
-                    <select className="w-full px-4 py-3 rounded-xl bg-sage-50 border-none focus:ring-2 focus:ring-sage-300 outline-none transition-shadow text-charcoal">
-                      <option>Visita di Controllo</option>
-                      <option>Vaccinazioni</option>
-                      <option>Visita per Malattia</option>
-                      <option>Consulto Dentale</option>
-                      <option>Altro</option>
-                    </select>
-                  </div>
-                  <button className="w-full bg-sage-600 text-white font-medium py-4 rounded-xl hover:bg-sage-700 transition-colors mt-4">
-                    Invia Richiesta
-                  </button>
-                  <p className="text-xs text-center text-charcoal/50 mt-4">
-                    Ti chiameremo entro 24 ore per confermare l'orario del tuo appuntamento.
-                  </p>
-                </form>
+                    <div>
+                      <label className="block text-sm font-medium text-charcoal/70 mb-1">Nome e Razza dell'Animale</label>
+                      <input type="text" name="petName" value={formData.petName} onChange={handleInputChange} required className="w-full px-4 py-3 rounded-xl bg-sage-50 border-none focus:ring-2 focus:ring-sage-300 outline-none transition-shadow" placeholder="Bella, Golden Retriever" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-charcoal/70 mb-1">Motivo della Visita</label>
+                      <select name="reason" value={formData.reason} onChange={handleInputChange} className="w-full px-4 py-3 rounded-xl bg-sage-50 border-none focus:ring-2 focus:ring-sage-300 outline-none transition-shadow text-charcoal">
+                        <option value="Visita di Controllo">Visita di Controllo</option>
+                        <option value="Vaccinazioni">Vaccinazioni</option>
+                        <option value="Visita per Malattia">Visita per Malattia</option>
+                        <option value="Consulto Dentale">Consulto Dentale</option>
+                        <option value="Altro">Altro</option>
+                      </select>
+                    </div>
+
+                    {submitStatus === 'error' && (
+                      <div className="text-red-500 text-sm mt-2 p-3 bg-red-50 rounded-lg">
+                        Si è verificato un errore durante l'invio della richiesta. Riprova più tardi.
+                      </div>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full bg-sage-600 text-white font-medium py-4 rounded-xl hover:bg-sage-700 transition-colors mt-4 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          Invio in corso...
+                        </>
+                      ) : (
+                        "Invia Richiesta"
+                      )}
+                    </button>
+                    <p className="text-xs text-center text-charcoal/50 mt-4">
+                      Ti chiameremo entro 24 ore per confermare l'orario del tuo appuntamento.
+                    </p>
+                  </form>
+                )}
               </div>
             </div>
           </div>
